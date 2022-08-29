@@ -1,21 +1,37 @@
 import React, { useContext, useEffect, useState } from 'react'
+import { useNavigate } from 'react-router-dom';
 import styled from 'styled-components'
 import { ConfigurationBar } from '../Components/ConfigurationBar';
-import { RightBar } from '../Components/RightBar';
-
-
 import { SideBar } from '../Components/SideBar';
 import { StoreContext } from '../context/StoreProvider';
 
-export const UserPage = () => {
 
+export const MainPage = () => {
+  const navigate = useNavigate();
   const [store, dispatch] = useContext(StoreContext);
-  const {user,actualHost, cameras} = store;
-  console.log(cameras)
+  const {user,actualHost, cameras, token} = store;
+ 
+  
+
+  var streamButton;
+  var view;
+  useEffect(() => {
+    
+    if(token==""){
+      alert("Debe iniciar sesión")
+      navigate('/');
+    }
+    streamButton = document.getElementById('toggle-stream2')
+    view = document.getElementById('stream')
+  }, [])
+  
+  streamButton = document.getElementById('toggle-stream2')
+  view = document.getElementById('stream')
 
   var baseHost = "http://"+actualHost;
   var streamUrl = baseHost + ':81'
 
+ 
   const stopStream = () => {
     window.stop();
     streamButton.innerHTML = 'Iniciar'
@@ -26,13 +42,7 @@ export const UserPage = () => {
     streamButton.innerHTML = 'Parar'
   }
 
-  var streamButton;
-  var view;
-  
-  useEffect(() => {
-    streamButton = document.getElementById('toggle-stream')
-    view = document.getElementById('stream')
-  }, [])
+  if(baseHost !== actualHost && view!=null) stopStream()
  
   return (
     <Box>
@@ -41,7 +51,7 @@ export const UserPage = () => {
         <img height="100%" width="100%" id="stream" src="" />
         <Buttons>
           <Button>Captura</Button>
-          <Button id= "toggle-stream" onClick={()=>{
+          <Button id= "toggle-stream2" onClick={(event)=>{
             const streamEnabled = streamButton.innerHTML === 'Parar'
             if (streamEnabled) {
               stopStream()
@@ -72,6 +82,10 @@ const CamBox = styled.div`
   align-self: center;
   border: 1px solid #ccc;
   border-radius: 10px;
+  @media (max-width: 500px){
+    height: 250px;
+    width: 350px;
+  }
 `
 const Buttons = styled.div`
   padding: 20px 20%;

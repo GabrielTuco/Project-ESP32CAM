@@ -10,8 +10,24 @@ import '../index.css'
 
 export const ConfigurationBar = (props) => {
 
+  let view 
+  let stillButton 
+  let streamButton 
+  let enrollButton 
+  let agc 
+  let agcGain 
+  let gainCeiling
+  let aec
+  let exposure 
+  let awb 
+  let wb
+  let detect
+  let recognize 
+  let framesize 
+
+
     const [isSelected, setIsSelected] = useState(true);
-    var baseHost = "http://"+props.host
+    var baseHost = "http://"+ props.host
     var streamUrl = baseHost + ':81'
 
 
@@ -98,7 +114,6 @@ export const ConfigurationBar = (props) => {
   
     const startStream = () => {
       view.src = `${streamUrl}/stream`
-      show(viewContainer)
       streamButton.innerHTML = 'Stop Stream'
     }
 
@@ -112,7 +127,8 @@ export const ConfigurationBar = (props) => {
           }
         })
     
-      // read initial values
+      // read initial values+
+      
       fetch(`${baseHost}/status`)
         .then(function (response) {
           return response.json()
@@ -123,29 +139,16 @@ export const ConfigurationBar = (props) => {
             .forEach(el => {
               updateValue(el, state[el.id], false)
             })
+        }).catch((error)=>{
+          
         })
     
-      const view = document.getElementById('stream')
-      const viewContainer = document.getElementById('stream-container')
-      const stillButton = document.getElementById('get-still')
-      const streamButton = document.getElementById('toggle-stream')
-      const enrollButton = document.getElementById('face_enroll')
-      const closeButton = document.getElementById('close-stream')
-    
+      view = document.getElementById('stream')
       
-    
-      // Attach actions to buttons
-      stillButton.onclick = () => {
-        stopStream()
-        view.src = `${baseHost}/capture?_cb=${Date.now()}`
-        show(viewContainer)
-      }
-    
-      closeButton.onclick = () => {
-        stopStream()
-        hide(viewContainer)
-      }
-    
+      stillButton = document.getElementById('get-still')
+      streamButton = document.getElementById('toggle-stream')
+      enrollButton = document.getElementById('face_enroll')
+      
       streamButton.onclick = () => {
         const streamEnabled = streamButton.innerHTML === 'Stop Stream'
         if (streamEnabled) {
@@ -168,9 +171,9 @@ export const ConfigurationBar = (props) => {
     
       // Custom actions
       // Gain
-      const agc = document.getElementById('agc')
-      const agcGain = document.getElementById('agc_gain-group')
-      const gainCeiling = document.getElementById('gainceiling-group')
+      agc = document.getElementById('agc')
+      agcGain = document.getElementById('agc_gain-group')
+      gainCeiling = document.getElementById('gainceiling-group')
       agc.onchange = () => {
         updateConfig(agc)
         if (agc.checked) {
@@ -183,25 +186,25 @@ export const ConfigurationBar = (props) => {
       }
     
       // Exposure
-      const aec = document.getElementById('aec')
-      const exposure = document.getElementById('aec_value-group')
+      aec = document.getElementById('aec')
+      exposure = document.getElementById('aec_value-group')
       aec.onchange = () => {
         updateConfig(aec)
         aec.checked ? hide(exposure) : show(exposure)
       }
     
       // AWB
-      const awb = document.getElementById('awb_gain')
-      const wb = document.getElementById('wb_mode-group')
+      awb = document.getElementById('awb_gain')
+      wb = document.getElementById('wb_mode-group')
       awb.onchange = () => {
         updateConfig(awb)
         awb.checked ? show(wb) : hide(wb)
       }
     
       // Detection and framesize
-      const detect = document.getElementById('face_detect')
-      const recognize = document.getElementById('face_recognize')
-      const framesize = document.getElementById('framesize')
+      detect = document.getElementById('face_detect')
+      recognize = document.getElementById('face_recognize')
+      framesize = document.getElementById('framesize')
     
       framesize.onchange = () => {
         updateConfig(framesize)
@@ -456,12 +459,7 @@ export const ConfigurationBar = (props) => {
                           </section>
                       </nav>
                   
-                  <figure>
-                      <div id="stream-container" className="image-container hidden">
-                          <div className="close" id="close-stream">×</div>
-                          <img id="stream" src=""/>
-                      </div>
-                  </figure>
+                  
                        
         </ProSidebar>
         <ButtonSidebar onClick={()=> {setIsSelected(!isSelected)}} hidden={!isSelected}>

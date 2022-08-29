@@ -1,16 +1,27 @@
 import React, { useState } from 'react'
 
+const ButtonOnOff = ({host}) => {
+  
+  const [color, setColor] = useState("#555454");
 
-
-const ButtonOnOff = (props) => {
-  const [color, setColor] = useState("#e62f1f");
+  
+  fetch(`"http://"+${host}/status`)
+  .then(function (response) {
+    return response.json()
+  })
+  .then(function (state) {
+    setColor("#1df55e")
+      
+  }).catch((error)=>{
+    setColor("#e62f1f")
+  })
 
   return (
   <svg
     xmlns="http://www.w3.org/2000/svg"
     viewBox="0 0 115.96 115.96"
-   
-    {...props}
+    height="25px"
+    
   >
     <g data-name="Capa 2">
       <g data-name="Capa 1">
