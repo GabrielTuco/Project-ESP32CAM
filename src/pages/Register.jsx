@@ -63,10 +63,11 @@ export const Register = () => {
             <IoIosArrowRoundBack style={{color: 'black', height: '30px', width: '30px', position: 'absolute', left: 15, top: 15}}/>
           </ArrowBack>
           <p style={{color: 'black', textAlign: 'center', fontSize: '24px', marginBottom: '30px'}}>Crear Cuenta</p>
+          <p style={{color: 'black', textAlign: 'left', fontSize: '14px'}}>Creará una cuenta de administrador</p>
           <div style={{display: 'block', textAlign: 'center'}}>
             <InputLogin onChange={(event)=> setUser((old)=>({...old, user:event.target.value, msg:''}))} placeholder="Usuario" name="user" required></InputLogin>
             <InputLogin onChange={(event)=> setUser((old)=>({...old, password:event.target.value, msg:''}))} type="password" placeholder="Constraseña" name="password"  required></InputLogin>
-            <InputLogin onChange={(event)=> setUser((old)=>({...old, password2:event.target.value, msg:''}))} type="password" placeholder="Confirmar constraseña" name="password2" required></InputLogin>
+            <InputLogin onChange={(event)=> setUser((old)=>({...old, password2:event.target.value, msg:''}))} type="password" placeholder="Confirmar contraseña" name="password2" required></InputLogin>
             <ButtonLogin type ="submit" value="Aceptar" onClick={onPressRegister} />
           </div>
           <Error>{user.msg}</Error>

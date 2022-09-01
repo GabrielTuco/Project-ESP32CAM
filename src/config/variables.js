@@ -1,3 +1,3 @@
-//const url_base = 'https://esp32-api.herokuapp.com';
-const url_base = 'http://localhost:5000';
+const url_base = 'https://esp32-api.herokuapp.com';
+
 export default url_base
