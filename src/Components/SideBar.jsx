@@ -1,4 +1,4 @@
-import React, { useContext, useState } from 'react'
+import React, { useCallback, useContext, useState } from 'react'
 import { Camera } from '../Components/Camera';
 
 import { ProSidebar, Menu, MenuItem, SubMenu, SidebarHeader, SidebarContent, SidebarFooter,  } from 'react-pro-sidebar';
@@ -21,12 +21,13 @@ import { AddUser } from './AddUser';
 export const SideBar = (props) => {
     const navigate = useNavigate();
     const [store, dispatch] = useContext(StoreContext);
-    const {token} = store;
+    const {token, type} = store;
     const [isLoading, setLoading] = useState(false);
     const [isSelected, setIsSelected] = useState(false);
     const [isModalSelectedCam, setisModalSelectedCam] = useState(false);
     const [isModalSelectedUse, setisModalSelectedUse] = useState(false);
     const [error, setError] = useState("");
+    const [errorUser, setErrorUser] = useState("");
     
     function isValidIP(str="") {
         let verdad = str.split('.');
@@ -54,17 +55,18 @@ export const SideBar = (props) => {
         setLoading(e)
     }
 
-    const BuildCameras= ()=> {
+    const BuildCameras= useCallback(()=> {
+        
         if(props.cameras.length>0)
             return props.cameras.map((e,i)=>(<Menu key={i}><Camera change ={changeLoading} id= {e.id} name={e.name} ip={e["ip"]}></Camera></Menu>))
         else
             return <></>
-    }
+    }, [props.cameras])
 
     const BuildUsers= ()=> {
-        console.log(props.users)
+        
         if(props.users.length>0)
-            return props.users.map((e,i)=>(<Menu key={i}><User change ={changeLoading} id= {e.id} name={e.name} ip={e["ip"]}></User></Menu>))
+            return props.users.map((e,i)=>(<Menu key={i}><User change ={changeLoading} id= {e.id} user={e.user} password={e.password}></User></Menu>))
         else
             return <></>
     }
@@ -149,15 +151,15 @@ export const SideBar = (props) => {
         const pass2 = document.getElementById('password2')
         const {uid}= jwtDecode(token)
         if(user.value=="" || pass.value =="" || pass2.value ==""){
-            setError('*Debe llenar todos los campos')
+            setErrorUser('*Debe llenar todos los campos')
             return false;
         }
         if(pass.value.length<6){
-            setError('*La contraseña debe ser mayor a 6 caracteres')
+            setErrorUser('*La contraseña debe ser mayor a 6 caracteres')
             return false;
         }
         if(pass.value != pass2.value){
-            setError('*Las contraseñas deben ser iguales')
+            setErrorUser('*Las contraseñas deben ser iguales')
             return false;
         }
 
@@ -166,6 +168,7 @@ export const SideBar = (props) => {
             const body = JSON.stringify({
               user:user.value,
               password:pass.value,
+              type: false,
               owner: uid
             })
             
@@ -187,27 +190,31 @@ export const SideBar = (props) => {
             else if (response.status == 400){
               setLoading(false)
               const data = await response.json()
-              setError(data.msg)
+              setErrorUser(data.msg)
                   
               return
       
             } else{
               setLoading(false)
               const data = await response.json(); 
-              const { user, password} = data;
+              const { users} = data;
             
               dispatch({
-                type: types.AddCamera,
-                body: {user, password}
-                });
+                type: types.UpdateUsers,
+                body: users 
+              });
+              user.value=""
+              pass.value=""
+              pass2.value=""
+            
               setisModalSelectedUse(!isModalSelectedUse)
-              setError('')
+              setErrorUser('')
             }
          
             
       
           } catch (error) {
-            console.error(error)
+            
             setLoading(false)
           }
 
@@ -229,44 +236,52 @@ export const SideBar = (props) => {
                 <Menu>
                 <SubMenu title="Camaras" icon={<TbDeviceComputerCamera size="1.8em"/>} >
                     <BuildCameras></BuildCameras>
-                    <div hidden={isModalSelectedCam}>
-                        <BoxButtonAdd  onClick={()=> {setisModalSelectedCam(!isModalSelectedCam)}}>
-                            <ButtonAdd >
-                                Agregar camara
-                            </ButtonAdd>
-                        </BoxButtonAdd> 
-                    </div>
+                    { type?
+                        <>
+                        <div hidden={isModalSelectedCam}>
+                            <BoxButtonAdd  onClick={()=> {setisModalSelectedCam(!isModalSelectedCam)}}>
+                                <ButtonAdd >
+                                    Agregar camara
+                                </ButtonAdd>
+                            </BoxButtonAdd> 
+                        </div>
 
-                    <div hidden={!isModalSelectedCam}>
-                        <AddCamera change={changeCam} error={error}></AddCamera>
-                        <BoxButtonAdd onClick={addCamera}>
-                            <ButtonAdd>
-                                Aceptar        
-                            </ButtonAdd>
-                        </BoxButtonAdd> 
-                    </div>
-                    
+                        <div hidden={!isModalSelectedCam}>
+                            <AddCamera change={changeCam} error={error}></AddCamera>
+                            <BoxButtonAdd onClick={addCamera}>
+                                <ButtonAdd>
+                                    Aceptar        
+                                </ButtonAdd>
+                            </BoxButtonAdd> 
+                        </div>
+                        </>:
+                        <></>
+                    }
                     
                 </SubMenu>
-                <SubMenu title="Usuarios" icon={<IoPersonOutline size="1.8em"/>} >
-                    <User></User>
-                    <div hidden={isModalSelectedUse}>
-                        <BoxButtonAdd  onClick={()=> {setisModalSelectedUse(!isModalSelectedUse)}}>
-                            <ButtonAdd >
-                                Agregar usuario
-                            </ButtonAdd>
-                        </BoxButtonAdd> 
-                    </div>
+                {
+                    type?
+                    <SubMenu title="Usuarios" icon={<IoPersonOutline size="1.8em"/>} >
+                        <BuildUsers></BuildUsers>
+                        <div hidden={isModalSelectedUse}>
+                            <BoxButtonAdd  onClick={()=> {setisModalSelectedUse(!isModalSelectedUse)}}>
+                                <ButtonAdd >
+                                    Agregar usuario
+                                </ButtonAdd>
+                            </BoxButtonAdd> 
+                        </div>
 
-                    <div hidden={!isModalSelectedUse}>
-                        <AddUser change={changeUser} error={error}></AddUser>
-                        <BoxButtonAdd onClick={addUser}>
-                            <ButtonAdd>
-                                Aceptar        
-                            </ButtonAdd>
-                        </BoxButtonAdd> 
-                    </div>
-                </SubMenu>
+                        <div hidden={!isModalSelectedUse}>
+                            <AddUser change={changeUser} error={errorUser}></AddUser>
+                            <BoxButtonAdd onClick={addUser}>
+                                <ButtonAdd>
+                                    Aceptar        
+                                </ButtonAdd>
+                            </BoxButtonAdd> 
+                        </div>
+                    </SubMenu>:
+                    <></>
+                }
                 </Menu>
             </SidebarContent>
 
@@ -287,6 +302,7 @@ export const SideBar = (props) => {
         <ButtonSidebar onClick={()=> {setIsSelected(!isSelected)}} hidden={!isSelected}>
                         <img height="100%" width="60%" src={menu} ></img>
         </ButtonSidebar>
+
         {
           isLoading ? <LoadingScreen/>: <></>
         }

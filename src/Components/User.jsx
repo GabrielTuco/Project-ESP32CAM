@@ -2,7 +2,6 @@ import React, { useContext, useState } from 'react'
 import styled from 'styled-components'
 import { StoreContext } from '../context/StoreProvider';
 import { types } from '../context/StoreReducer';
-
 import { FiEdit2 } from "react-icons/fi";
 import { IoTrashOutline } from "react-icons/io5";
 import { IoClose } from 'react-icons/io5';
@@ -10,6 +9,7 @@ import jwtDecode from 'jwt-decode';
 import url_base from "../config/variables"
 
 export const User = (props) => {
+    
     const [store, dispatch] = useContext(StoreContext);
     const {user,actualHost, cameras, token} = store;
     const [edit, setEdit] = useState(false);
@@ -17,25 +17,29 @@ export const User = (props) => {
 
     const onEdit = async()=>{
         const user = document.getElementById('userEdit')
-        const pass = document.getElementById('passwordEdit')
+        const actualpass = document.getElementById('actualPasswordEdit')
+        const newpass = document.getElementById('newPasswordEdit')
         
         
-        if(name.value=="" || ip.value ==""){
+        if(user.value=="" || actualpass.value =="" || newpass.value == ""){
             setError('*Debe llenar todos los campos')
             return false;
         }
-        if(name.value==props.name && ip.value ==props.ip){
-            setError('*Debe cambiar algun campo')
-            return false;
-        }
+
+        if(newpass.value.length<6){
+          setError('*La nueva contraseña debe ser mayor a 6 caracteres')
+          return false;
+      }
+
 
         try {
             const {uid}= jwtDecode(token)
             const body = JSON.stringify({
+              aid: uid,
               id: props.id,
-              uid,
               user:user.value,
-              password:pass.value,
+              actualpassword: actualpass.value,
+              newpassword:newpass.value,
             })
             props.change(true)
             const response = await fetch(`${url_base}/api/users`,{
@@ -63,7 +67,7 @@ export const User = (props) => {
               props.change(false)
               const {users} = data;   
               dispatch({
-                type: types.UpdateCameras,
+                type: types.UpdateUsers,
                 body: users
               });  
               
@@ -76,12 +80,12 @@ export const User = (props) => {
     }
     
     const onDelete = async()=>{
-      if (confirm("¿Esta seguro de eliminar esta camara?")){
+      if (confirm("¿Esta seguro de eliminar este usuario?")){
         try {
           const {uid}= jwtDecode(token)
           const body = JSON.stringify({
             id: props.id,
-            uid
+            aid: uid,
           })
           props.change(true)
           const response = await fetch(`${url_base}/api/users`,{
@@ -111,7 +115,7 @@ export const User = (props) => {
             props.change(false)
             const {users} = data;   
             dispatch({
-              type: types.UpdateCameras,
+              type: types.UpdateUsers,
               body: users
             });  
             
@@ -128,11 +132,12 @@ export const User = (props) => {
         <Box >
             {   edit?
                 <BoxInput>
-                    <Input  id="userEdit" placeholder='Nombre del usuario' defaultValue={props.name}></Input>
-                    <Input type="passwordEdit" id="passwordEdit" placeholder='Contraseña del usuario' defaultValue={props.password}></Input>
+                    <Input  id="userEdit" placeholder='Nombre del usuario' defaultValue={props.user}></Input>
+                    <Input type="password" id="actualPasswordEdit" placeholder='Contraseña actual' ></Input>
+                    <Input type="password" id="newPasswordEdit" placeholder='Contraseña nueva' ></Input>
                 </BoxInput>:
                 <div style={{width: "175px"}}>
-                    <Word>Usuario: {props.name}</Word>
+                    <Word>Usuario: {props.user}</Word>
                 </div>
             }
             {

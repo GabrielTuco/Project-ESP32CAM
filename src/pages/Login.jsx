@@ -50,12 +50,10 @@ export const Login = () => {
       } else{
         setLoading(false)
         const data = await response.json(); 
-        const { user, cameras, token } = data;
-        
-
+        const { user, cameras, token, users} = data;
         dispatch({
           type: types.Login,
-          body: {user:user.user, cameras, token}
+          body: {user:user.user, cameras, token, users, type: user.type_}
         });
         navigate('/MainPage');
       }

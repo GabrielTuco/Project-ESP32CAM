@@ -32,12 +32,15 @@ const types ={
     Login: "Login",
     Logout: "Logout",
     UpdateCameras: "UpdateCameras",
+    UpdateUsers: "UpdateUsers"
 }
 const initialStore= {
     user:   getInitialValue("user", ''),
     actualHost: getInitialValue("actualHost", ''),
     cameras: getInitialValue("cameras", []),
     token: getInitialValue("token", ''),
+    users: getInitialValue("users", []),
+    type: getInitialValue("type", false),
 }
 
 const storeReducer = (state,action) =>{
@@ -47,11 +50,15 @@ const storeReducer = (state,action) =>{
             setValue("user", action.body.user)
             setValue("cameras", action.body.cameras)
             setValue("token", action.body.token)
+            setValue("users", action.body.users)
+            setValue("type", action.body.type)
             return {
                 ...state,
                 user: action.body.user,
                 cameras: action.body.cameras,
-                token: action.body.token
+                token: action.body.token,
+                users: action.body.users,
+                type: action.body.type
             }
         case types.UpdateCameras:
             setValue("cameras", action.body)
@@ -59,7 +66,12 @@ const storeReducer = (state,action) =>{
                 ...state,
                 cameras: action.body
             }
-
+        case types.UpdateUsers:
+            setValue("users", action.body)
+            return {
+                ...state,
+                users: action.body
+            }
 
         case types.AddCamera:
             setValue("user", action.body.user)

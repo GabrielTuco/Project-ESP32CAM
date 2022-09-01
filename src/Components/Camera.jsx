@@ -12,7 +12,7 @@ import url_base from "../config/variables"
 export const Camera = memo((props) => {
 
     const [store, dispatch] = useContext(StoreContext);
-    const {user,actualHost, cameras, token} = store;
+    const {user,actualHost, cameras, token, type} = store;
     const [edit, setEdit] = useState(false);
     const [error, setError] = useState("");
     const onSelected = ()=>{
@@ -175,9 +175,10 @@ export const Camera = memo((props) => {
                     </Box2>
                 </div>:
                 <div style={{display:"flex", justifyContent:"center", alignItems:"center"}}>
+                    {type?
                     <Box2 onClick={()=>{setEdit(!edit); onSelected()}}>
                         <FiEdit2 size="1.1em"/>
-                    </Box2>
+                    </Box2>:<></>}
                     <ButtonOnOff host={actualHost}   />
                 </div>
             }

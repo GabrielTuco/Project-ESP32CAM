@@ -9,14 +9,14 @@ import { StoreContext } from '../context/StoreProvider';
 export const MainPage = () => {
   const navigate = useNavigate();
   const [store, dispatch] = useContext(StoreContext);
-  const {user,actualHost, cameras, token} = store;
+  const {user,actualHost, cameras, token, users, type} = store;
     
   let streamButton;
   let view;
   let enrollButton;
   useEffect(() => {
     
-    if(token==""){
+    if(token=="" || user==""){
       alert("Debe iniciar sesión")
       navigate('/');
     }
@@ -71,7 +71,7 @@ export const MainPage = () => {
  
   return (
     <Box>
-      <SideBar name={user} cameras={cameras}/>
+      <SideBar name={user} cameras={cameras} users={users}/>
       <CamBox>
         <img height="100%" width="100%" id="stream" src="" />
         <Buttons>
@@ -88,7 +88,7 @@ export const MainPage = () => {
           
         </Buttons>
       </CamBox>
-      { <ConfigurationBar host={actualHost}></ConfigurationBar>}
+      { type? <ConfigurationBar host={actualHost}></ConfigurationBar>:<></>}
       
       
     </Box>
