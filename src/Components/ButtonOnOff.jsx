@@ -1,20 +1,20 @@
-import React, { useState } from 'react'
+import React, { useEffect, useState } from 'react'
 
 const ButtonOnOff = ({host}) => {
   
-  const [color, setColor] = useState("#555454");
-
-  
-  fetch(`"http://"+${host}/status`)
-  .then(function (response) {
-    return response.json()
-  })
+  const [color, setColor] = useState("#3d3d3d");
+  var baseHost = "http://"+ host
+  useEffect(() => {
+    fetch(`${baseHost}/status`)
   .then(function (state) {
-    setColor("#1df55e")
+    setColor("#2db355")
       
   }).catch((error)=>{
     setColor("#e62f1f")
   })
+  }, [])
+  
+  
 
   return (
   <svg

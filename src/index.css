@@ -21,9 +21,9 @@ section.main {
 #menu {
   display: none;
   flex-wrap: nowrap;
-  min-width: 340px;
-  background: #323232;
-  padding: 8px;
+  width: 100%;
+  box-sizing: border-box;
+  padding: 0 8px;
   border-radius: 4px;
   margin-top: -10px;
   margin-right: 10px;
@@ -111,17 +111,19 @@ section#buttons {
   display: flex;
   flex-wrap: nowrap;
   line-height: 22px;
+  justify-content: space-between;
   margin: 5px 0
 }
 
 .input-group>label {
   display: inline-block;
   padding-right: 10px;
-  min-width: 47%
+  min-width: 35%
 }
 
 .input-group input,.input-group select {
-  flex-grow: 1
+  flex-grow: 1;
+  
 }
 
 .range-max,.range-min {
@@ -255,7 +257,8 @@ input[type=range]:focus::-ms-fill-upper {
   position: relative;
   line-height: 22px;
   font-size: 16px;
-  height: 22px
+  height: 22px;
+  
 }
 
 .switch input {

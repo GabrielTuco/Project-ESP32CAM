@@ -4,13 +4,14 @@ import { StoreContext } from '../context/StoreProvider';
 import { types } from '../context/StoreReducer';
 import ButtonOnOff from './ButtonOnOff'
 import { IoTrashOutline } from "react-icons/io5";
-export const AddCamera = (props) => {
+export const AddUser = (props) => {
   return (
     <Container>
       <Box >
           <BoxInput>
-              <Input  id="name" placeholder='Nombre de la camara'></Input>
-              <Input id="ip" placeholder='IP de la camara (x.x.x.x)'></Input>
+              <Input id="name" placeholder='Usuario'></Input>
+              <Input id="password" placeholder='Ingrese contraseña'></Input>
+              <Input id="password2" placeholder='Repita constraseña'></Input>
           </BoxInput>
           <Close onClick={props.change}>
             <IoTrashOutline size="1.5em"/>
@@ -20,10 +21,7 @@ export const AddCamera = (props) => {
       <Error>
         {props.error}
       </Error>
-
-    </Container>
-    
-    
+    </Container> 
   )
 }
 

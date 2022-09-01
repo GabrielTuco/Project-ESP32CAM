@@ -1,53 +1,27 @@
-import React, { useContext, useState, memo } from 'react'
+import React, { useContext, useState } from 'react'
 import styled from 'styled-components'
 import { StoreContext } from '../context/StoreProvider';
 import { types } from '../context/StoreReducer';
-import ButtonOnOff from './ButtonOnOff'
+
 import { FiEdit2 } from "react-icons/fi";
 import { IoTrashOutline } from "react-icons/io5";
 import { IoClose } from 'react-icons/io5';
 import jwtDecode from 'jwt-decode';
 import url_base from "../config/variables"
 
-export const Camera = memo((props) => {
-
+export const User = (props) => {
     const [store, dispatch] = useContext(StoreContext);
     const {user,actualHost, cameras, token} = store;
     const [edit, setEdit] = useState(false);
     const [error, setError] = useState("");
-    const onSelected = ()=>{
-        if(actualHost!=props.ip)
-        dispatch({
-            type: types.ChangeActualHost,
-            body: props.ip
-        });
-    }
-
-    function isValidIP(str="") {
-        let verdad = str.split('.');
-        if(verdad.length != 4)
-          return false;
-        for(let i in verdad){
-          if(!/^\d+$/g.test(verdad[i])
-          ||+verdad[i]>255
-          ||+verdad[i]<0
-          ||/^[0][0-9]{1,2}/.test(verdad[i]))
-            return false;
-        }
-        return true
-    }
 
     const onEdit = async()=>{
-        const name = document.getElementById('nameEdit')
-        const ip = document.getElementById('ipEdit')
-        onSelected()
+        const user = document.getElementById('userEdit')
+        const pass = document.getElementById('passwordEdit')
+        
         
         if(name.value=="" || ip.value ==""){
             setError('*Debe llenar todos los campos')
-            return false;
-        }
-        if(!isValidIP(ip.value)){
-            setError('*Formato de la dirección IP es incorrecta')
             return false;
         }
         if(name.value==props.name && ip.value ==props.ip){
@@ -58,13 +32,13 @@ export const Camera = memo((props) => {
         try {
             const {uid}= jwtDecode(token)
             const body = JSON.stringify({
-              uid,
               id: props.id,
-              name:name.value,
-              ip:ip.value,
+              uid,
+              user:user.value,
+              password:pass.value,
             })
             props.change(true)
-            const response = await fetch(`${url_base}/api/camera`,{
+            const response = await fetch(`${url_base}/api/users`,{
               method:'PUT',
               body,
               headers: {
@@ -76,7 +50,7 @@ export const Camera = memo((props) => {
             if(response.status == 404){
               props.change(false)
               alert("Error: Server not found")
-              
+              return
             }
             else if (response.status == 400){
               props.change(false)
@@ -85,19 +59,17 @@ export const Camera = memo((props) => {
               return
       
             } else{
-              
               const data = await response.json(); 
               props.change(false)
-              const {cameras} = data;   
+              const {users} = data;   
               dispatch({
                 type: types.UpdateCameras,
-                body: cameras
+                body: users
               });  
               
               setError('')
             }
           } catch (error) {
-            console.error(error)
             props.change(false)
           }
 
@@ -112,7 +84,7 @@ export const Camera = memo((props) => {
             uid
           })
           props.change(true)
-          const response = await fetch(`${url_base}/api/camera`,{
+          const response = await fetch(`${url_base}/api/users`,{
             method:'DELETE',
             body,
             headers: {
@@ -137,31 +109,30 @@ export const Camera = memo((props) => {
             
             const data = await response.json(); 
             props.change(false)
-            const {cameras} = data;   
+            const {users} = data;   
             dispatch({
               type: types.UpdateCameras,
-              body: cameras
+              body: users
             });  
             
             setError('')
           }
         } catch (error) {
-          console.error(error)
+          
           props.change(false)
         }
       }
     }
   return (
-    <Container onClick={onSelected} isSelected={actualHost===props.ip}>
+    <Container>
         <Box >
             {   edit?
                 <BoxInput>
-                    <Input  id="nameEdit" placeholder='Nombre de la camara' defaultValue={props.name}></Input>
-                    <Input id="ipEdit" placeholder='IP de la camara (x.x.x.x)' defaultValue={props.ip}></Input>
+                    <Input  id="userEdit" placeholder='Nombre del usuario' defaultValue={props.name}></Input>
+                    <Input type="passwordEdit" id="passwordEdit" placeholder='Contraseña del usuario' defaultValue={props.password}></Input>
                 </BoxInput>:
                 <div style={{width: "175px"}}>
-                    <Word>Nombre: {props.name}</Word>
-                    <Word style={{marginLeft:"40px"}}>IP: {props.ip}</Word>
+                    <Word>Usuario: {props.name}</Word>
                 </div>
             }
             {
@@ -175,10 +146,9 @@ export const Camera = memo((props) => {
                     </Box2>
                 </div>:
                 <div style={{display:"flex", justifyContent:"center", alignItems:"center"}}>
-                    <Box2 onClick={()=>{setEdit(!edit); onSelected()}}>
+                    <Box2 onClick={()=>{setEdit(!edit)}}>
                         <FiEdit2 size="1.1em"/>
                     </Box2>
-                    <ButtonOnOff host={actualHost}   />
                 </div>
             }
             
@@ -198,11 +168,11 @@ export const Camera = memo((props) => {
         
     </Container>
   )
-})
+}
+
 const Container = styled.div`
     height: 100%;
     margin: 0px 10px;
-    background-color: ${(props )=> (props.isSelected ? "#4b4b4b" : "")};
     justify-content: space-between;
     border-radius:10px;
     align-items: center;

@@ -75,7 +75,6 @@ export const Register = () => {
           isLoading ? <LoadingScreen/>: <></>
         }
       </div>
-      
     )
 }
 

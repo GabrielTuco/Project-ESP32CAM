@@ -30,7 +30,8 @@ const types ={
     ChangeActualHost:"ChangeActualHost",
     AddCamera: "AddCamera",
     Login: "Login",
-    Logout: "Logout"
+    Logout: "Logout",
+    UpdateCameras: "UpdateCameras",
 }
 const initialStore= {
     user:   getInitialValue("user", ''),
@@ -52,6 +53,14 @@ const storeReducer = (state,action) =>{
                 cameras: action.body.cameras,
                 token: action.body.token
             }
+        case types.UpdateCameras:
+            setValue("cameras", action.body)
+            return {
+                ...state,
+                cameras: action.body
+            }
+
+
         case types.AddCamera:
             setValue("user", action.body.user)
             setValue("cameras", [...state.cameras, action.body])

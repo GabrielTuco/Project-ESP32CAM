@@ -51,7 +51,7 @@ export const Login = () => {
         setLoading(false)
         const data = await response.json(); 
         const { user, cameras, token } = data;
-        console.log(token)
+        
 
         dispatch({
           type: types.Login,
