@@ -5,31 +5,39 @@ import { IoIosArrowRoundBack } from "react-icons/io";
 import { StoreContext } from '../context/StoreProvider'
 import url_base from "../config/variables"
 import { LoadingScreen } from '../Components/LoadingScreen';
+import { useForm } from '../hooks/useForm';
 
 export const Register = () => {
     const navigate = useNavigate();
     const [store, dispatch] = useContext(StoreContext);
     const [isLoading, setLoading] = useState(false);
-    const [user,setUser]= useState({user: '', password: '', password2: '', msg:''});
+
+    const {user, password, password2, msg, onInputChange, onSetNewState }= useForm({
+      user: '', 
+      password: '', 
+      password2: '', 
+      msg:''
+    });
+
     
     const onPressRegister = async () => {
       
-      if(user.user=='' || user.password=='' || user.password2=='') {
-        setUser((old)=>({...old, msg:'*Debe llenar todos los campos'}))
+      if(user=='' || password=='' || password2=='') {
+        onSetNewState('msg','*Debe llenar todos los campos')
         return false;
       }
-      if(user.password.length<6){
-        setUser((old)=>({...old, msg:'*La contraseña debe ser mayor a 6 caracteres'}))
+      if(password.length<6){
+        onSetNewState('msg','La contraseña debe ser mayor a 6 caracteres')
         return false;
       }
-      if(user.password != user.password2){
-        setUser((old)=>({...old, msg:'*Las contraseñas deben ser iguales'}))
+      if(password != password2){
+        onSetNewState('msg','*Las contraseñas deben ser iguales')
         return false;
       }
 
       const body = {
-        user: user.user,
-        password: user.password,
+        user: user,
+        password: password,
         type: true
       }
       setLoading(true)
@@ -47,7 +55,7 @@ export const Register = () => {
       else if (response.status == 400){
         setLoading(false)
         const data = await response.json()
-        setUser((old)=>({...old, msg:data.msg}))  
+        onSetNewState('msg',data.msg)  
         return
 
       } else{
@@ -57,27 +65,52 @@ export const Register = () => {
     }
   
     return (
-      <div style={{display: 'flex', alignContent: 'center', height: '100vh'}}>
+      <Container>
         <Box>
           <ArrowBack to="/login"> 
             <IoIosArrowRoundBack style={{color: 'black', height: '30px', width: '30px', position: 'absolute', left: 15, top: 15}}/>
           </ArrowBack>
-          <p style={{color: 'black', textAlign: 'center', fontSize: '24px', marginBottom: '30px'}}>Crear Cuenta</p>
-          <p style={{color: 'black', textAlign: 'left', fontSize: '14px'}}>Creará una cuenta de administrador</p>
+          <Title>Crear Cuenta</Title>
+          <Subtitle>Creará una cuenta de administrador</Subtitle>
           <div style={{display: 'block', textAlign: 'center'}}>
-            <InputLogin onChange={(event)=> setUser((old)=>({...old, user:event.target.value, msg:''}))} placeholder="Usuario" name="user" required></InputLogin>
-            <InputLogin onChange={(event)=> setUser((old)=>({...old, password:event.target.value, msg:''}))} type="password" placeholder="Constraseña" name="password"  required></InputLogin>
-            <InputLogin onChange={(event)=> setUser((old)=>({...old, password2:event.target.value, msg:''}))} type="password" placeholder="Confirmar contraseña" name="password2" required></InputLogin>
+
+            <InputLogin 
+            onChange={ onInputChange } 
+            placeholder="Usuario" 
+            name="user" 
+            required />
+
+            <InputLogin 
+            onChange={ onInputChange } 
+            type="password" 
+            placeholder="Constraseña" 
+            name="password"  
+            required />
+
+            <InputLogin 
+            onChange={ onInputChange } 
+            type="password" 
+            placeholder="Confirmar contraseña" 
+            name="password2" 
+            required />
+
             <ButtonLogin type ="submit" value="Aceptar" onClick={onPressRegister} />
+
           </div>
-          <Error>{user.msg}</Error>
+          <Error>{msg}</Error>
         </Box>
         {
           isLoading ? <LoadingScreen/>: <></>
         }
-      </div>
+      </Container>
     )
 }
+
+const Container = styled.div`
+  display: flex; 
+  align-content: center; 
+  height: 100vh;
+`
 
 const Box= styled.div`
   position: absolute;
@@ -95,6 +128,19 @@ const Box= styled.div`
   border-radius: 10px;
   
 `
+const Title = styled.p`
+  color: black;
+  text-align: center;
+  font-size: 24px;
+  margin-bottom: 30px;
+`
+const Subtitle = styled.p`
+  color: black;
+  text-align: left;
+  font-size: 14px;
+
+`
+
 const InputLogin= styled.input`
   width: 100%;
   padding: 10px;

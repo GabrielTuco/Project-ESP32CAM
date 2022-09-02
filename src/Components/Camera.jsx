@@ -1,4 +1,4 @@
-import React, { useContext, useState, memo } from 'react'
+import React, { useContext, useState, useRef, memo } from 'react'
 import styled from 'styled-components'
 import { StoreContext } from '../context/StoreProvider';
 import { types } from '../context/StoreReducer';
@@ -8,62 +8,57 @@ import { IoTrashOutline } from "react-icons/io5";
 import { IoClose } from 'react-icons/io5';
 import jwtDecode from 'jwt-decode';
 import url_base from "../config/variables"
+import { isValidIP } from '../helpers';
 
-export const Camera = memo((props) => {
 
-    const [store, dispatch] = useContext(StoreContext);
-    const {user,actualHost, cameras, token, type} = store;
+export const Camera = memo(({ id, ip, name, change }) => {
+
+    const [store, dispatch] = useContext(StoreContext); //Context
+
+    const {user,actualHost, cameras, token, type} = store; //Store reducer
+
     const [edit, setEdit] = useState(false);
     const [error, setError] = useState("");
-    const onSelected = ()=>{
-        if(actualHost!=props.ip)
-        dispatch({
-            type: types.ChangeActualHost,
-            body: props.ip
-        });
-    }
 
-    function isValidIP(str="") {
-        let verdad = str.split('.');
-        if(verdad.length != 4)
-          return false;
-        for(let i in verdad){
-          if(!/^\d+$/g.test(verdad[i])
-          ||+verdad[i]>255
-          ||+verdad[i]<0
-          ||/^[0][0-9]{1,2}/.test(verdad[i]))
-            return false;
-        }
-        return true
-    }
+    const nameRef = useRef(null);
+    const ipRef = useRef(null);
+    
+    const onSelected = ()=>{
+        if( actualHost !== ip )
+          dispatch({
+              type: types.ChangeActualHost,
+              body: ip
+        });
+    };
 
     const onEdit = async()=>{
-        const name = document.getElementById('nameEdit')
-        const ip = document.getElementById('ipEdit')
+        //const name = document.getElementById('nameEdit')
+        //const ip = document.getElementById('ipEdit')
         onSelected()
         
-        if(name.value=="" || ip.value ==""){
+        if(nameRef.current.value=="" || ipRef.current.value ==""){
             setError('*Debe llenar todos los campos')
             return false;
         }
-        if(!isValidIP(ip.value)){
+        if(!isValidIP(ipRef.current.value)){
             setError('*Formato de la dirección IP es incorrecta')
             return false;
         }
-        if(name.value==props.name && ip.value ==props.ip){
+        if(nameRef.current.value==name && ipRef.current.value == ip ){
             setError('*Debe cambiar algun campo')
             return false;
         }
 
         try {
-            const {uid}= jwtDecode(token)
+            const { uid }= jwtDecode( token )
             const body = JSON.stringify({
               uid,
-              id: props.id,
-              name:name.value,
-              ip:ip.value,
+              id: id,
+              name:nameRef.current.value,
+              ip:ipRef.current.value,
             })
-            props.change(true)
+            console.log(body);
+            change(true)
             const response = await fetch(`${url_base}/api/camera`,{
               method:'PUT',
               body,
@@ -74,21 +69,22 @@ export const Camera = memo((props) => {
             })
             
             if(response.status == 404){
-              props.change(false)
+              change(false)
               alert("Error: Server not found")
               
             }
             else if (response.status == 400){
-              props.change(false)
+              change(false)
               const data = await response.json()
+              console.log(data);
               setError(data.msg)
               return
       
-            } else{
+            } else {
               
               const data = await response.json(); 
-              props.change(false)
-              const {cameras} = data;   
+              change(false)
+              const { cameras } = data;   
               dispatch({
                 type: types.UpdateCameras,
                 body: cameras
@@ -96,10 +92,10 @@ export const Camera = memo((props) => {
               
               setError('')
             }
-          } catch (error) {
+        } catch (error) {
             console.error(error)
-            props.change(false)
-          }
+            change(false)
+        }
 
     }
     
@@ -108,10 +104,10 @@ export const Camera = memo((props) => {
         try {
           const {uid}= jwtDecode(token)
           const body = JSON.stringify({
-            id: props.id,
+            id: id,
             uid
           })
-          props.change(true)
+          change(true)
           const response = await fetch(`${url_base}/api/camera`,{
             method:'DELETE',
             body,
@@ -122,12 +118,12 @@ export const Camera = memo((props) => {
           })
           
           if(response.status == 404){
-            props.change(false)
+            change(false)
             alert("Error: Server not found")
             
           }
           else if (response.status == 400){
-            props.change(false)
+            change(false)
             const data = await response.json()
             console.log(data.msg)
             
@@ -136,7 +132,7 @@ export const Camera = memo((props) => {
           } else{
             
             const data = await response.json(); 
-            props.change(false)
+            change(false)
             const {cameras} = data;   
             dispatch({
               type: types.UpdateCameras,
@@ -147,22 +143,24 @@ export const Camera = memo((props) => {
           }
         } catch (error) {
           console.error(error)
-          props.change(false)
+          change(false)
         }
       }
     }
+
   return (
-    <Container onClick={onSelected} isSelected={actualHost===props.ip}>
+    <Container onClick={ onSelected } isSelected={ actualHost === ip }>
         <Box >
-            {   edit?
-                <BoxInput>
-                    <Input  id="nameEdit" placeholder='Nombre de la camara' defaultValue={props.name}></Input>
-                    <Input id="ipEdit" placeholder='IP de la camara (x.x.x.x)' defaultValue={props.ip}></Input>
-                </BoxInput>:
-                <div style={{width: "175px"}}>
-                    <Word>Nombre: {props.name}</Word>
-                    <Word style={{marginLeft:"40px"}}>IP: {props.ip}</Word>
-                </div>
+            { (edit) 
+              ? (<BoxInput>
+                    <Input ref={ nameRef }  id="nameEdit" placeholder='Nombre de la camara' defaultValue={ name }></Input>
+                    <Input ref={ ipRef } id="ipEdit" placeholder='IP de la camara (x.x.x.x)' defaultValue={ ip }></Input>
+                </BoxInput>
+                )
+              : (<div style={{width: "175px"}}>
+                    <Word>Nombre: { name }</Word>
+                    <Word style={{ marginLeft: "40px" }}>IP: { ip }</Word>
+                </div>)
             }
             {
                 edit?
@@ -203,7 +201,7 @@ export const Camera = memo((props) => {
 const Container = styled.div`
     height: 100%;
     margin: 0px 10px;
-    background-color: ${(props )=> (props.isSelected ? "#4b4b4b" : "")};
+    background-color: ${ props => props.isSelected ? "#4b4b4b" : ""};
     justify-content: space-between;
     border-radius:10px;
     align-items: center;

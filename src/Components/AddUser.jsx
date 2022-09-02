@@ -1,8 +1,6 @@
-import React, { useContext, useState } from 'react'
+import React from 'react'
 import styled from 'styled-components'
-import { StoreContext } from '../context/StoreProvider';
-import { types } from '../context/StoreReducer';
-import ButtonOnOff from './ButtonOnOff'
+
 import { IoTrashOutline } from "react-icons/io5";
 export const AddUser = (props) => {
   return (
@@ -29,13 +27,10 @@ const Container = styled.div`
     height: 100%;
     margin: 0px 10px;
     background-color: #4b4b4b;
-    
-    
     justify-content: space-between;
     border-radius:10px;
     align-items: center;
     padding: 8px 3%;
-    
     &:hover{
         background-color: #4b4b4b;
     }
@@ -44,14 +39,9 @@ const Container = styled.div`
 const Box = styled.div`
     height: 100%;
     width : 100%;
-    
     display: flex;
     justify-content: space-between;
-  
     align-items: center;
-    
-    
-    
 `
 const BoxInput= styled.div`
   margin-top: auto;

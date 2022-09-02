@@ -1,29 +1,29 @@
-import React, { useContext, useState } from 'react'
+// import { StoreContext } from '../context/StoreProvider';
+// import { types } from '../context/StoreReducer';
+// import ButtonOnOff from './ButtonOnOff'
+
+import React from 'react'
 import styled from 'styled-components'
-import { StoreContext } from '../context/StoreProvider';
-import { types } from '../context/StoreReducer';
-import ButtonOnOff from './ButtonOnOff'
 import { IoTrashOutline } from "react-icons/io5";
-export const AddCamera = (props) => {
+export const AddCamera = ({ error, change, nameRef, ipRef }) => {
   return (
     <Container>
       <Box >
           <BoxInput>
-              <Input  id="name" placeholder='Nombre de la camara'></Input>
-              <Input id="ip" placeholder='IP de la camara (x.x.x.x)'></Input>
+              <Input ref={ nameRef } placeholder='Nombre de la camara'></Input>
+              <Input ref={ ipRef } placeholder='IP de la camara (x.x.x.x)'></Input>
           </BoxInput>
-          <Close onClick={props.change}>
+          <Close onClick={ change }>
             <IoTrashOutline size="1.5em"/>
           </Close>
           
       </Box>
-      <Error>
-        {props.error}
-      </Error>
 
+      <Error>
+        { error }
+      </Error>
+      
     </Container>
-    
-    
   )
 }
 
@@ -31,8 +31,6 @@ const Container = styled.div`
     height: 100%;
     margin: 0px 10px;
     background-color: #4b4b4b;
-    
-    
     justify-content: space-between;
     border-radius:10px;
     align-items: center;
@@ -46,14 +44,9 @@ const Container = styled.div`
 const Box = styled.div`
     height: 100%;
     width : 100%;
-    
     display: flex;
     justify-content: space-between;
-  
     align-items: center;
-    
-    
-    
 `
 const BoxInput= styled.div`
   margin-top: auto;

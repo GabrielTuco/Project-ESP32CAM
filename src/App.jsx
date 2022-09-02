@@ -1,12 +1,10 @@
 
-import { ConfigurationBar } from './Components/ConfigurationBar'
-import { BrowserRouter, Routes, Route, Navigate} from 'react-router-dom'
-
-import { MainPage } from './pages/MainPage'
-import { Login } from './pages/Login'
+// import { ConfigurationBar } from './Components/ConfigurationBar'
+import { BrowserRouter } from 'react-router-dom'
 import "./App.css"
+
 import StoreProvider from './context/StoreProvider'
-import { Register } from './pages/Register'
+import { AppRouter } from './router/AppRouter'
 
 function App() {
   
@@ -14,12 +12,7 @@ function App() {
 
       <StoreProvider>
         <BrowserRouter>
-          <Routes>      
-            <Route path="/login" element={<Login/>}></Route>
-            <Route path="/register" element={<Register/>}></Route>
-            <Route path="/MainPage" element={<MainPage/>}></Route>
-            <Route path="/" element={<Navigate to={'/login'}/>}></Route>
-          </Routes>
+          <AppRouter />
         </BrowserRouter>
       </StoreProvider>
 

@@ -1,17 +1,21 @@
 import React, { useEffect, useState } from 'react'
 
-const ButtonOnOff = ({host}) => {
+const ButtonOnOff = ({ host }) => {
   
-  const [color, setColor] = useState("#3d3d3d");
-  var baseHost = "http://"+ host
+  const [ color, setColor ] = useState("#3d3d3d");
+
+  const fetchStatus = () => {
+
+    fetch(`http://${ host }/status`)
+      .then(() => { setColor("#2db355") })
+      .catch(()=>{ setColor("#e62f1f") })
+
+  }
+
   useEffect(() => {
-    fetch(`${baseHost}/status`)
-  .then(function (state) {
-    setColor("#2db355")
-      
-  }).catch((error)=>{
-    setColor("#e62f1f")
-  })
+    
+    fetchStatus();
+
   }, [])
   
   

@@ -1,4 +1,5 @@
-import React, { useContext, useEffect, useState } from 'react'
+import React, { useContext, useEffect, useRef, useState } from 'react'
+import { useMemo } from 'react';
 import { useNavigate } from 'react-router-dom';
 import styled from 'styled-components'
 import { ConfigurationBar } from '../Components/ConfigurationBar';
@@ -11,27 +12,23 @@ export const MainPage = () => {
   const [store, dispatch] = useContext(StoreContext);
   const {user,actualHost, cameras, token, users, type} = store;
     
-  let streamButton;
-  let view;
-  let enrollButton;
+  const streamButtonRef = useRef(null);
+  const viewRef = useRef(null);
+  const enrollButtonRef = useRef(null);
+  
+  
+  let baseHost =useMemo(()=> "http://"+ actualHost, [actualHost]);
+  let streamUrl = useMemo(()=> baseHost + ':81', [baseHost] );
+  
   useEffect(() => {
     
     if(token=="" || user==""){
       alert("Debe iniciar sesión")
       navigate('/');
     }
-    streamButton = document.getElementById('toggle-stream2')
-    enrollButton = document.getElementById('face_enroll')
-    view = document.getElementById('stream')
-  }, [])
-  
-  streamButton = document.getElementById('toggle-stream2')
-  view = document.getElementById('stream')
+  }, []);
 
-  let baseHost = "http://"+actualHost;
-  let streamUrl = baseHost + ':81'
-
-  function updateConfig (el) {
+  const updateConfig = (el) => {
     let value
     switch (el.type) {
       case 'checkbox':
@@ -59,26 +56,26 @@ export const MainPage = () => {
 
   const stopStream = () => {
     window.stop();
-    streamButton.innerHTML = 'Iniciar'
+    streamButtonRef.current.innerHTML = 'Iniciar'
   }
 
   const startStream = () => {
-    view.src = `${streamUrl}/stream`
-    streamButton.innerHTML = 'Parar'
+    viewRef.current.src = `${streamUrl}/stream`
+    streamButtonRef.current.innerHTML = 'Parar'
   }
 
-  if(baseHost !== actualHost && view!=null) stopStream()
+  if(baseHost !== actualHost && viewRef.current != null) stopStream()
  
   return (
     <Box>
       <SideBar name={user} cameras={cameras} users={users}/>
       <CamBox>
-        <img height="100%" width="100%" id="stream" src="" />
+        <img height="100%" width="100%" ref={ viewRef } src="" />
         <Buttons>
           <Button>Captura</Button>
-          <Button id= "face_enroll" onClick={()=>updateConfig(enrollButton)}>Guardar Rostro</Button>
-          <Button id= "toggle-stream2" onClick={(event)=>{
-            const streamEnabled = streamButton.innerHTML === 'Parar'
+          <Button ref={ enrollButtonRef } onClick={()=>updateConfig( enrollButtonRef.current )}>Guardar Rostro</Button>
+          <Button ref={ streamButtonRef } onClick={()=>{
+            const streamEnabled = streamButtonRef.current.innerHTML === 'Parar'
             if (streamEnabled) {
               stopStream()
             } else {
@@ -88,7 +85,7 @@ export const MainPage = () => {
           
         </Buttons>
       </CamBox>
-      { type? <ConfigurationBar host={actualHost}></ConfigurationBar>:<></>}
+      { type? <ConfigurationBar host={actualHost} enrollButtonRef={ enrollButtonRef }></ConfigurationBar>:<></>}
       
       
     </Box>

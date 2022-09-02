@@ -1,30 +1,39 @@
 import React, { useContext, useState } from 'react'
-import styled from 'styled-components'
-import cam from '../images/webcam.png'
-import jwt from 'jwt-decode'
 import {NavLink, useNavigate} from 'react-router-dom'
-import { LoadingScreen } from '../Components/LoadingScreen'
+import jwt from 'jwt-decode'
+import styled from 'styled-components'
+
+import cam from '../images/webcam.png'
+import url_base from "../config/variables"
+
 import { StoreContext } from '../context/StoreProvider'
 import { types } from '../context/StoreReducer'
-import url_base from "../config/variables"
+
+import { LoadingScreen } from '../Components'
+import { useForm } from '../hooks/useForm'
 
 export const Login = () => {
   const navigate = useNavigate();
   const [isLoading, setLoading] = useState(false);
   const [store, dispatch] = useContext(StoreContext);
-  const [user,setUser]= useState({user: '', password: '', msg:''});
+
+  const { user,password,msg, onInputChange, onSetNewState }= useForm({
+    user: '', 
+    password: '', 
+    msg:''
+  });
   
   const onPressLogin = async () => {
     
-    if(user.user=='' || user.password=='') {
-      setUser((old)=>({...old, msg:'*Debe llenar todos los campos'}))
+    if(user=='' || password=='') {
+      onSetNewState('msg','*Debe llenar todos los campos')
       return false;
     }
     
     try {
       const body = JSON.stringify({
-        user: user.user,
-        password: user.password
+        user,
+        password
       })
       setLoading(true)
       const response = await fetch(`${url_base}/api/auth/login`,{
@@ -44,7 +53,7 @@ export const Login = () => {
       else if (response.status == 400){
         setLoading(false)
         const data = await response.json()
-        setUser((old)=>({...old, msg:"*"+data.msg}))    
+        onSetNewState('msg',`*${ data.msg }`)
         return
 
       } else{
@@ -53,8 +62,13 @@ export const Login = () => {
         const { user, cameras, token, users} = data;
         dispatch({
           type: types.Login,
-          body: {user:user.user, cameras, token, users, type: user.type_}
-        });
+          body: {
+            user:user.user, 
+            cameras, 
+            token, 
+            users, 
+            type: user.type_
+        }});
         navigate('/MainPage');
       }
    
@@ -74,13 +88,13 @@ export const Login = () => {
         <p style={{color: 'black', textAlign: 'center', fontSize: '22px'}}> Project ESP32 CAM <img height="16px" src={cam}/></p>
         <p style={{color: 'black', textAlign: 'center', fontSize: '20px'}}>Iniciar Sesion</p>
         <div style={{display: 'block', textAlign: 'center'}} >
-          <InputLogin onChange={(event)=> setUser((old)=>({...old, user:event.target.value, msg:''}))}  placeholder="Usuario" required></InputLogin>
-          <InputPassword onChange={(event)=> setUser((old)=>({...old, password:event.target.value, msg:''}))} type="password" placeholder="Contraseña"  required></InputPassword>
+          <InputLogin onChange={ onInputChange } name='user'  placeholder="Usuario" required></InputLogin>
+          <InputPassword onChange={ onInputChange } name='password' type="password" placeholder="Contraseña"  required></InputPassword>
           <p style={{color: 'black', textAlign: 'left', fontSize: '14px'}}>¿No tiene una cuenta? <NavL to="/register" >Cree una</NavL>.</p>
           
           <ButtonLogin type ="submit"   value="Entrar" onClick={onPressLogin} />
           
-          <Error>{user.msg}</Error>
+          <Error>{ msg }</Error>
         </div> 
         
       </Box>

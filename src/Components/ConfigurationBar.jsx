@@ -1,19 +1,21 @@
 import React, { useEffect, useState } from 'react'
-import { Camera } from '../Components/Camera';
 import { ProSidebar, Menu, MenuItem, SubMenu, SidebarHeader, SidebarContent,  } from 'react-pro-sidebar';
-import 'react-pro-sidebar/dist/css/styles.css';
 import styled from 'styled-components'
-import menu from '../images/IconConfiguration.svg'
-import close from '../images/Recurso 1.svg'
 
-import '../index.css'
+import { Camera } from '../Components/Camera';
 import { TbDeviceComputerCamera } from 'react-icons/tb';
 import { LoadingScreen } from './LoadingScreen';
 import { ErrorScreen } from './ErrorScreen';
 
+import 'react-pro-sidebar/dist/css/styles.css';
+import menu from '../images/IconConfiguration.svg'
+import close from '../images/Recurso 1.svg'
+
+import '../index.css'
+
 export const ConfigurationBar = (props) => {
  
-  let enrollButton 
+  // let enrollButton
   let agc 
   let agcGain 
   let gainCeiling
@@ -28,6 +30,7 @@ export const ConfigurationBar = (props) => {
   const [isSelected, setIsSelected] = useState(true);
   const [isLoading, setLoading] = useState(0);
   const [refresh, setRefresh] = useState(false);
+
   var baseHost = "http://"+ props.host
 
   const hide = el => {
@@ -47,24 +50,24 @@ export const ConfigurationBar = (props) => {
     el.disabled = false
   }
   
-  const updateValue = (el, value, updateRemote) => {
+  const updateValue = (element, value, updateRemote) => {
     updateRemote = updateRemote == null ? true : updateRemote
     let initialValue
-    if (el.type === 'checkbox') {
-      initialValue = el.checked
+    if (element.type === 'checkbox') {
+      initialValue = element.checked
       value = !!value
-      el.checked = value
+      element.checked = value
     } else {
-      initialValue = el.value
-      el.value = value
+      initialValue = element.value
+      element.value = value
     }
 
     if (updateRemote && initialValue !== value) {
-      updateConfig(el);
+      updateConfig(element);
     } else if(!updateRemote){
-      if(el.id === "aec"){
+      if(element.id === "aec"){
         value ? hide(exposure) : show(exposure)
-      } else if(el.id === "agc"){
+      } else if(element.id === "agc"){
         if (value) {
           show(gainCeiling)
           hide(agcGain)
@@ -72,23 +75,23 @@ export const ConfigurationBar = (props) => {
           hide(gainCeiling)
           show(agcGain)
         }
-      } else if(el.id === "awb_gain"){
+      } else if(element.id === "awb_gain"){
         value ? show(wb) : hide(wb)
-      } else if(el.id === "face_recognize"){
-        value ? enable(enrollButton) : disable(enrollButton)
+      } else if(element.id === "face_recognize"){
+        value ? enable(props.enrollButtonRef.current) : disable(props.enrollButtonRef.current)
       }
       }
   }
   
-    function updateConfig (el) {
+    const updateConfig = ( element ) => {
       let value
-      switch (el.type) {
+      switch (element.type) {
         case 'checkbox':
-          value = el.checked ? 1 : 0
+          value = element.checked ? 1 : 0
           break
         case 'range':
         case 'select-one':
-          value = el.value
+          value = element.value
           break
         case 'button':
         case 'submit':
@@ -98,7 +101,7 @@ export const ConfigurationBar = (props) => {
           return
       }
   
-      const query = `${baseHost}/control?var=${el.id}&val=${value}`
+      const query = `${baseHost}/control?var=${element.id}&val=${value}`
   
       fetch(query)
         .then(response => {
@@ -152,9 +155,9 @@ export const ConfigurationBar = (props) => {
         })*/
     
       
-      enrollButton = document.getElementById('face_enroll')
-      enrollButton.onclick = () => {
-        updateConfig(enrollButton)
+      // enrollButton = document.getElementById('face_enroll')
+      props.enrollButtonRef.current.onclick = () => {
+        updateConfig(props.enrollButtonRef.current)
       }
     
       // Attach default on change action
@@ -217,7 +220,7 @@ export const ConfigurationBar = (props) => {
         }
         updateConfig(detect)
         if (!detect.checked) {
-          disable(enrollButton)
+          disable(props.enrollButtonRef.current)
           updateValue(recognize, false)
         }
       }
@@ -230,10 +233,10 @@ export const ConfigurationBar = (props) => {
         }
         updateConfig(recognize)
         if (recognize.checked) {
-          enable(enrollButton)
+          enable(props.enrollButtonRef.current)
           updateValue(detect, true)
         } else {
-          disable(enrollButton)
+          disable(props.enrollButtonRef.current)
         }
       }
     }, [])

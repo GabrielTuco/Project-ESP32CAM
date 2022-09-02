@@ -1,47 +1,42 @@
-import React, { useCallback, useContext, useState } from 'react'
-import { Camera } from '../Components/Camera';
-
+import React, { useContext, useState,useCallback,useRef } from 'react'
+import { useNavigate } from 'react-router-dom';
 import { ProSidebar, Menu, MenuItem, SubMenu, SidebarHeader, SidebarContent, SidebarFooter,  } from 'react-pro-sidebar';
-import '../styles.scss';
-import styled from 'styled-components'
-import menu from '../images/menu2.svg'
-import close from '../images/Recurso 1.svg'
-import { StoreContext } from '../context/StoreProvider';
-import { types } from '../context/StoreReducer';
 import { IoLogOutOutline, IoClose,IoPersonOutline } from 'react-icons/io5';
 import { TbDeviceComputerCamera } from "react-icons/tb";
-import { AddCamera } from './AddCamera';
+import styled from 'styled-components'
 import jwtDecode from 'jwt-decode';
-import { LoadingScreen } from './LoadingScreen';
+
+import { isValidIP } from '../helpers';
 import url_base from "../config/variables"
-import { useNavigate } from 'react-router-dom';
-import { User } from './User';
-import { AddUser } from './AddUser';
+import { StoreContext } from '../context/StoreProvider';
+import { types } from '../context/StoreReducer';
+
+import { Camera,AddCamera,LoadingScreen,User,AddUser } from './';
+
+import '../styles.scss';
+import menu from '../images/menu2.svg'
+import close from '../images/Recurso 1.svg'
 
 export const SideBar = (props) => {
+
     const navigate = useNavigate();
+
     const [store, dispatch] = useContext(StoreContext);
-    const {token, type} = store;
+
+    const { token } = store;
+
     const [isLoading, setLoading] = useState(false);
     const [isSelected, setIsSelected] = useState(false);
     const [isModalSelectedCam, setisModalSelectedCam] = useState(false);
     const [isModalSelectedUse, setisModalSelectedUse] = useState(false);
     const [error, setError] = useState("");
-    const [errorUser, setErrorUser] = useState("");
     
-    function isValidIP(str="") {
-        let verdad = str.split('.');
-        if(verdad.length != 4)
-          return false;
-        for(let i in verdad){
-          if(!/^\d+$/g.test(verdad[i])
-          ||+verdad[i]>255
-          ||+verdad[i]<0
-          ||/^[0][0-9]{1,2}/.test(verdad[i]))
-            return false;
-        }
-        return true
-    }
+    const nameRef = useRef(null);
+    const ipRef = useRef(null);
+
+    const userRef = useRef(null);
+    const passRef = useRef(null);
+    const pass2Ref = useRef(null);
 
     const changeCam= () => {
         setisModalSelectedCam(!isModalSelectedCam)
@@ -56,48 +51,38 @@ export const SideBar = (props) => {
     }
 
     const BuildCameras= useCallback(()=> {
-        
         if(props.cameras.length>0)
-            return props.cameras.map((e,i)=>(<Menu key={i}><Camera change ={changeLoading} id= {e.id} name={e.name} ip={e["ip"]}></Camera></Menu>))
+            return props.cameras.map((e,i)=>(
+            <Menu key={i}>
+                <Camera change ={changeLoading} id= {e.id} name={e.name} ip={e.ip}></Camera>
+            </Menu>))
         else
-            return <></>
-    }, [props.cameras])
-
-    const BuildUsers= ()=> {
-        
-        if(props.users.length>0)
-            return props.users.map((e,i)=>(<Menu key={i}><User change ={changeLoading} id= {e.id} user={e.user} password={e.password}></User></Menu>))
-        else
-            return <></>
-    }
+            return null
+    },[props.cameras])
 
     const logout = ()=> {
-        dispatch({
-            type: types.Logout,
-            
-        });
+        dispatch({ type: types.Logout, });
         navigate('/');
     }
 
     const addCamera = async() => {
-        const name = document.getElementById('name')
-        const ip = document.getElementById('ip')
+                
         const {uid}= jwtDecode(token)
-        if(name.value=="" || ip.value ==""){
+        
+        if(nameRef.current.value=="" || ipRef.current.value ==""){
             setError('*Debe llenar todos los campos')
             return false;
         }
         
-        if(!isValidIP(ip.value)){
-            
+        if(!isValidIP(ipRef.current.value)){
             setError('*Formato de la dirección IP es incorrecta')
             return false;
         }
         
         try {
             const body = JSON.stringify({
-              name:name.value,
-              ip:ip.value,
+              name:nameRef.current.value,
+              ip:ipRef.current.value,
               owner: uid
             })
             
@@ -130,7 +115,7 @@ export const SideBar = (props) => {
             
               dispatch({
                 type: types.AddCamera,
-                body: {name: name.value, ip: ip.value}
+                body: {name: nameRef.current.value, ip: ipRef.current.value }
                 });
               setisModalSelectedCam(!isModalSelectedCam)
               setError('')
@@ -142,33 +127,36 @@ export const SideBar = (props) => {
             console.error(error)
             setLoading(false)
           }
+          
 
     }
 
     const addUser = async() => {
-        const user = document.getElementById('user')
-        const pass = document.getElementById('password')
-        const pass2 = document.getElementById('password2')
-        const {uid}= jwtDecode(token)
-        if(user.value=="" || pass.value =="" || pass2.value ==""){
-            setErrorUser('*Debe llenar todos los campos')
+
+        // const user = document.getElementById('user')
+        // const pass = document.getElementById('password')
+        // const pass2 = document.getElementById('password2')
+
+        const { uid }= jwtDecode(token)
+
+        if(userRef.current.value=="" || passRef.current.value =="" || pass2Ref.current.value ==""){
+            setError('*Debe llenar todos los campos')
             return false;
         }
-        if(pass.value.length<6){
-            setErrorUser('*La contraseña debe ser mayor a 6 caracteres')
+        if(passRef.current.value.length<6){
+            setError('*La contraseña debe ser mayor a 6 caracteres')
             return false;
         }
-        if(pass.value != pass2.value){
-            setErrorUser('*Las contraseñas deben ser iguales')
+        if(passRef.current.value != pass2Ref.current.value){
+            setError('*Las contraseñas deben ser iguales')
             return false;
         }
 
         
         try {
             const body = JSON.stringify({
-              user:user.value,
-              password:pass.value,
-              type: false,
+              user:userRef.current.value,
+              password:passRef.current.value,
               owner: uid
             })
             
@@ -190,31 +178,27 @@ export const SideBar = (props) => {
             else if (response.status == 400){
               setLoading(false)
               const data = await response.json()
-              setErrorUser(data.msg)
+              setError(data.msg)
                   
               return
       
             } else{
               setLoading(false)
               const data = await response.json(); 
-              const { users} = data;
+              const { user, password} = data;
             
               dispatch({
-                type: types.UpdateUsers,
-                body: users 
-              });
-              user.value=""
-              pass.value=""
-              pass2.value=""
-            
+                type: types.AddCamera,
+                body: {user, password}
+                });
               setisModalSelectedUse(!isModalSelectedUse)
-              setErrorUser('')
+              setError('')
             }
          
             
       
           } catch (error) {
-            
+            console.error(error)
             setLoading(false)
           }
 
@@ -223,6 +207,7 @@ export const SideBar = (props) => {
   return (
     <SideBarDiv>
         <ProSidebar collapsed={isSelected} collapsedWidth="0px">
+            {/* Cabecera */}
             <SidebarHeader>
                 <BoxUser> 
                     <h2 style={{textAlign: 'center', width: '90%'}}>{props.name}</h2> 
@@ -232,56 +217,56 @@ export const SideBar = (props) => {
                 </BoxUser>
             </SidebarHeader>
 
+            {/* Cuerpo */}
             <SidebarContent>
                 <Menu>
                 <SubMenu title="Camaras" icon={<TbDeviceComputerCamera size="1.8em"/>} >
-                    <BuildCameras></BuildCameras>
-                    { type?
-                        <>
-                        <div hidden={isModalSelectedCam}>
-                            <BoxButtonAdd  onClick={()=> {setisModalSelectedCam(!isModalSelectedCam)}}>
-                                <ButtonAdd >
-                                    Agregar camara
-                                </ButtonAdd>
-                            </BoxButtonAdd> 
-                        </div>
+                    {/* Renderizado de las camaras */}
+                    <BuildCameras></BuildCameras> 
 
-                        <div hidden={!isModalSelectedCam}>
-                            <AddCamera change={changeCam} error={error}></AddCamera>
-                            <BoxButtonAdd onClick={addCamera}>
-                                <ButtonAdd>
-                                    Aceptar        
-                                </ButtonAdd>
-                            </BoxButtonAdd> 
-                        </div>
-                        </>:
-                        <></>
-                    }
+                    <div hidden={isModalSelectedCam}>
+                        <BoxButtonAdd  
+                        onClick={()=> {
+                            nameRef.current.value="";
+                            ipRef.current.value="";
+                            setisModalSelectedCam(!isModalSelectedCam);
+                        }}>
+                            <ButtonAdd >
+                                Agregar camara
+                            </ButtonAdd>
+                        </BoxButtonAdd> 
+                    </div>
+
+                    <div hidden={!isModalSelectedCam}>
+                        <AddCamera change={changeCam} error={error} nameRef={ nameRef } ipRef={ ipRef } ></AddCamera>
+                        <BoxButtonAdd onClick={addCamera}>
+                            <ButtonAdd>
+                                Aceptar        
+                            </ButtonAdd>
+                        </BoxButtonAdd> 
+                    </div>
+                    
                     
                 </SubMenu>
-                {
-                    type?
-                    <SubMenu title="Usuarios" icon={<IoPersonOutline size="1.8em"/>} >
-                        <BuildUsers></BuildUsers>
-                        <div hidden={isModalSelectedUse}>
-                            <BoxButtonAdd  onClick={()=> {setisModalSelectedUse(!isModalSelectedUse)}}>
-                                <ButtonAdd >
-                                    Agregar usuario
-                                </ButtonAdd>
-                            </BoxButtonAdd> 
-                        </div>
+                <SubMenu title="Usuarios" icon={<IoPersonOutline size="1.8em"/>} >
+                    <User></User>
+                    <div hidden={isModalSelectedUse}>
+                        <BoxButtonAdd  onClick={()=> {setisModalSelectedUse(!isModalSelectedUse)}}>
+                            <ButtonAdd >
+                                Agregar usuario
+                            </ButtonAdd>
+                        </BoxButtonAdd> 
+                    </div>
 
-                        <div hidden={!isModalSelectedUse}>
-                            <AddUser change={changeUser} error={errorUser}></AddUser>
-                            <BoxButtonAdd onClick={addUser}>
-                                <ButtonAdd>
-                                    Aceptar        
-                                </ButtonAdd>
-                            </BoxButtonAdd> 
-                        </div>
-                    </SubMenu>:
-                    <></>
-                }
+                    <div hidden={!isModalSelectedUse}>
+                        <AddUser change={changeUser} error={error}></AddUser>
+                        <BoxButtonAdd onClick={addUser}>
+                            <ButtonAdd>
+                                Aceptar        
+                            </ButtonAdd>
+                        </BoxButtonAdd> 
+                    </div>
+                </SubMenu>
                 </Menu>
             </SidebarContent>
 
@@ -299,10 +284,13 @@ export const SideBar = (props) => {
             </SidebarFooter>
 
         </ProSidebar>
-        <ButtonSidebar onClick={()=> {setIsSelected(!isSelected)}} hidden={!isSelected}>
+        <ButtonSidebar 
+        onClick={()=> {
+            setIsSelected(!isSelected)
+        }} 
+        hidden={!isSelected}>
                         <img height="100%" width="60%" src={menu} ></img>
         </ButtonSidebar>
-
         {
           isLoading ? <LoadingScreen/>: <></>
         }
