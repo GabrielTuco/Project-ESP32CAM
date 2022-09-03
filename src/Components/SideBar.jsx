@@ -60,6 +60,13 @@ export const SideBar = (props) => {
             return null
     },[props.cameras])
 
+    const BuildUsers= ()=> {
+        if(props.users.length>0)
+            return props.users.map((e,i)=>(<Menu key={i}><User change ={changeLoading} id= {e.id} user={e.user} password={e.password}></User></Menu>))
+        else
+            return <></>
+    }
+
     const logout = ()=> {
         dispatch({ type: types.Logout, });
         navigate('/');
@@ -157,7 +164,8 @@ export const SideBar = (props) => {
             const body = JSON.stringify({
               user:userRef.current.value,
               password:passRef.current.value,
-              owner: uid
+              owner: uid,
+              type: false
             })
             
             setLoading(true)
@@ -179,17 +187,19 @@ export const SideBar = (props) => {
               setLoading(false)
               const data = await response.json()
               setError(data.msg)
+              console.log(data.error)
+              console.log(data.body)
                   
               return
       
             } else{
               setLoading(false)
               const data = await response.json(); 
-              const { user, password} = data;
+              const {users} = data;
             
               dispatch({
-                type: types.AddCamera,
-                body: {user, password}
+                type: types.UpdateUsers,
+                body: users
                 });
               setisModalSelectedUse(!isModalSelectedUse)
               setError('')
@@ -249,7 +259,7 @@ export const SideBar = (props) => {
                     
                 </SubMenu>
                 <SubMenu title="Usuarios" icon={<IoPersonOutline size="1.8em"/>} >
-                    <User></User>
+                    <BuildUsers></BuildUsers>
                     <div hidden={isModalSelectedUse}>
                         <BoxButtonAdd  onClick={()=> {setisModalSelectedUse(!isModalSelectedUse)}}>
                             <ButtonAdd >
@@ -259,7 +269,7 @@ export const SideBar = (props) => {
                     </div>
 
                     <div hidden={!isModalSelectedUse}>
-                        <AddUser change={changeUser} error={error}></AddUser>
+                        <AddUser userRef={userRef} passRef={passRef} pass2Ref={pass2Ref} change={changeUser} error={error}></AddUser>
                         <BoxButtonAdd onClick={addUser}>
                             <ButtonAdd>
                                 Aceptar        

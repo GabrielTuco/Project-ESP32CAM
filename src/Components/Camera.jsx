@@ -177,7 +177,7 @@ export const Camera = memo(({ id, ip, name, change }) => {
                     <Box2 onClick={()=>{setEdit(!edit); onSelected()}}>
                         <FiEdit2 size="1.1em"/>
                     </Box2>:<></>}
-                    <ButtonOnOff host={actualHost}   />
+                    <ButtonOnOff host={ip}   />
                 </div>
             }
             

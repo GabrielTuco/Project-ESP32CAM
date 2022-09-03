@@ -110,10 +110,21 @@ export const ConfigurationBar = (props) => {
     }
     useEffect(() => {
       setLoading(1)
-      fetch(`${baseHost}/status`)
-      .then(function (response) {
-        return response.json()
-      })
+      agc = document.getElementById('agc')
+      agcGain = document.getElementById('agc_gain-group')
+      gainCeiling = document.getElementById('gainceiling-group')
+      aec = document.getElementById('aec')
+      exposure = document.getElementById('aec_value-group')
+      awb = document.getElementById('awb_gain')
+      wb = document.getElementById('wb_mode-group')
+      detect = document.getElementById('face_detect')
+      recognize = document.getElementById('face_recognize')
+      framesize = document.getElementById('framesize')
+
+      console.log(baseHost )
+      fetch(`${baseHost}/status`).then(
+        (response) => response.json()
+      )
       .then(function (state) {
         setLoading(0)
         document
@@ -122,6 +133,7 @@ export const ConfigurationBar = (props) => {
             updateValue(el, state[el.id], false)
           })
       }).catch((error)=>{
+        console.error(error)
         setLoading(2)
       })
     }, [props.host,refresh])
@@ -136,24 +148,6 @@ export const ConfigurationBar = (props) => {
             hide(el.parentNode)
           }
         })
-    
-      // read initial values+
-      /*
-      fetch(`${baseHost}/status`)
-        .then(function (response) {
-          return response.json()
-        })
-        .then(function (state) {
-          setLoading(0)
-          document
-            .querySelectorAll('.default-action')
-            .forEach(el => {
-              updateValue(el, state[el.id], false)
-            })
-        }).catch((error)=>{
-          setLoading(2)
-        })*/
-    
       
       // enrollButton = document.getElementById('face_enroll')
       props.enrollButtonRef.current.onclick = () => {

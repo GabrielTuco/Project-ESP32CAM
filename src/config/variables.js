@@ -1,3 +1,3 @@
-const url_base = 'https://esp32-api.herokuapp.com';
+const url_base = 'https://d9uwfu.deta.dev';
 
 export default url_base
