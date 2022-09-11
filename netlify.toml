@@ -1,4 +1,5 @@
 [[redirects]]
-  from = "/"
-  to = "/login"
- 
+  from = "/*"
+  to = "/index.html"
+  
+  force = true
