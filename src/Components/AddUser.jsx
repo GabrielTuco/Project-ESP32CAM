@@ -8,8 +8,8 @@ export const AddUser = (props) => {
       <Box >
           <BoxInput>
               <Input ref={props.userRef} placeholder='Usuario'></Input>
-              <Input ref={props.passRef} placeholder='Ingrese contraseña'></Input>
-              <Input ref={props.pass2Ref} placeholder='Repita contraseña'></Input>
+              <Input type="password" ref={props.passRef} placeholder='Ingrese contraseña'></Input>
+              <Input type="password" ref={props.pass2Ref} placeholder='Repita contraseña'></Input>
           </BoxInput>
           <Close onClick={props.change}>
             <IoTrashOutline size="1.5em"/>

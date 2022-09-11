@@ -23,7 +23,7 @@ export const SideBar = (props) => {
 
     const [store, dispatch] = useContext(StoreContext);
 
-    const { token } = store;
+    const { token,type } = store;
 
     const [isLoading, setLoading] = useState(false);
     const [isSelected, setIsSelected] = useState(false);
@@ -146,6 +146,7 @@ export const SideBar = (props) => {
 
         const { uid }= jwtDecode(token)
 
+
         if(userRef.current.value=="" || passRef.current.value =="" || pass2Ref.current.value ==""){
             setError('*Debe llenar todos los campos')
             return false;
@@ -158,6 +159,8 @@ export const SideBar = (props) => {
             setError('*Las contraseñas deben ser iguales')
             return false;
         }
+
+        
 
         
         try {
@@ -203,6 +206,9 @@ export const SideBar = (props) => {
                 });
               setisModalSelectedUse(!isModalSelectedUse)
               setError('')
+              userRef.current.value = ''
+              passRef.current.value = ''
+              pass2Ref.current.value = ''
             }
          
             
@@ -233,19 +239,22 @@ export const SideBar = (props) => {
                 <SubMenu title="Camaras" icon={<TbDeviceComputerCamera size="1.8em"/>} >
                     {/* Renderizado de las camaras */}
                     <BuildCameras></BuildCameras> 
-
-                    <div hidden={isModalSelectedCam}>
-                        <BoxButtonAdd  
-                        onClick={()=> {
-                            nameRef.current.value="";
-                            ipRef.current.value="";
-                            setisModalSelectedCam(!isModalSelectedCam);
-                        }}>
-                            <ButtonAdd >
-                                Agregar camara
-                            </ButtonAdd>
-                        </BoxButtonAdd> 
-                    </div>
+                    {
+                        type? 
+                        <div hidden={isModalSelectedCam}>
+                            <BoxButtonAdd  
+                            onClick={()=> {
+                                nameRef.current.value="";
+                                ipRef.current.value="";
+                                setisModalSelectedCam(!isModalSelectedCam);
+                            }}>
+                                <ButtonAdd >
+                                    Agregar camara
+                                </ButtonAdd>
+                            </BoxButtonAdd> 
+                        </div>:<></>
+                    }
+                    
 
                     <div hidden={!isModalSelectedCam}>
                         <AddCamera change={changeCam} error={error} nameRef={ nameRef } ipRef={ ipRef } ></AddCamera>
@@ -258,25 +267,28 @@ export const SideBar = (props) => {
                     
                     
                 </SubMenu>
-                <SubMenu title="Usuarios" icon={<IoPersonOutline size="1.8em"/>} >
-                    <BuildUsers></BuildUsers>
-                    <div hidden={isModalSelectedUse}>
-                        <BoxButtonAdd  onClick={()=> {setisModalSelectedUse(!isModalSelectedUse)}}>
-                            <ButtonAdd >
-                                Agregar usuario
-                            </ButtonAdd>
-                        </BoxButtonAdd> 
-                    </div>
+                {type?
+                    <SubMenu title="Usuarios" icon={<IoPersonOutline size="1.8em"/>} >
+                        <BuildUsers></BuildUsers>
+                        
+                            <div hidden={isModalSelectedUse}>
+                                <BoxButtonAdd onClick={()=> {setisModalSelectedUse(!isModalSelectedUse)}}>
+                                    <ButtonAdd >
+                                        Agregar usuario
+                                    </ButtonAdd>
+                                </BoxButtonAdd> 
+                            </div>
 
-                    <div hidden={!isModalSelectedUse}>
-                        <AddUser userRef={userRef} passRef={passRef} pass2Ref={pass2Ref} change={changeUser} error={error}></AddUser>
-                        <BoxButtonAdd onClick={addUser}>
-                            <ButtonAdd>
-                                Aceptar        
-                            </ButtonAdd>
-                        </BoxButtonAdd> 
-                    </div>
-                </SubMenu>
+                        <div hidden={!isModalSelectedUse}>
+                            <AddUser userRef={userRef} passRef={passRef} pass2Ref={pass2Ref} change={changeUser} error={error}></AddUser>
+                            <BoxButtonAdd onClick={addUser}>
+                                <ButtonAdd>
+                                    Aceptar        
+                                </ButtonAdd>
+                            </BoxButtonAdd> 
+                        </div>
+                    </SubMenu>:<></>
+                } 
                 </Menu>
             </SidebarContent>
 

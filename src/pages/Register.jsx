@@ -6,6 +6,7 @@ import { StoreContext } from '../context/StoreProvider'
 import url_base from "../config/variables"
 import { LoadingScreen } from '../Components/LoadingScreen';
 import { useForm } from '../hooks/useForm';
+import { types } from '../context/StoreReducer';
 
 export const Register = () => {
     const navigate = useNavigate();
@@ -60,6 +61,12 @@ export const Register = () => {
 
       } else{
         navigate('/MainPage');
+        dispatch({
+          type: types.Register,
+          body: {
+            user:user,  
+            type: true
+        }});
       }
       
     }
@@ -136,8 +143,9 @@ const Title = styled.p`
 `
 const Subtitle = styled.p`
   color: black;
-  text-align: left;
+  text-align: center;
   font-size: 14px;
+
 
 `
 

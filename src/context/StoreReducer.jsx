@@ -32,7 +32,8 @@ const types ={
     Login: "Login",
     Logout: "Logout",
     UpdateCameras: "UpdateCameras",
-    UpdateUsers: "UpdateUsers"
+    UpdateUsers: "UpdateUsers",
+    Register: "Register",
 }
 const initialStore= {
     user:   getInitialValue("user", ''),
@@ -46,8 +47,21 @@ const initialStore= {
 const storeReducer = (state,action) =>{
     
     switch(action.type){
+        case types.Register:
+              setValue("user", action.body.user)
+              setValue("actualHost", "")
+              setValue("cameras", [])
+              setValue("users", [])
+              setValue("token", "")
+              setValue("type", action.body.type)
+              return {
+                ...state,
+                user: action.body.user,
+                type: action.body.type
+              }
         case types.Login:
             setValue("user", action.body.user)
+            if(action.body.cameras.length > 0)setValue("actualHost", action.body.cameras[0].ip)
             setValue("cameras", action.body.cameras)
             setValue("token", action.body.token)
             setValue("users", action.body.users)
@@ -90,7 +104,9 @@ const storeReducer = (state,action) =>{
               setValue("user", "")
               setValue("actualHost", "")
               setValue("cameras", [])
+              setValue("users", [])
               setValue("token", "")
+              setValue("type", false)
               return {
                   user: "",
                   actualHost: "",
