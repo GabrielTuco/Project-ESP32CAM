@@ -2,6 +2,8 @@ import React, { useContext, useEffect, useRef, useState } from 'react'
 import { useMemo } from 'react';
 import { useNavigate } from 'react-router-dom';
 import styled from 'styled-components'
+import {AiFillVideoCamera,AiOutlineArrowLeft} from 'react-icons/ai'
+
 import { ConfigurationBar } from '../Components/ConfigurationBar';
 import { SideBar } from '../Components/SideBar';
 import { StoreContext } from '../context/StoreProvider';
@@ -10,22 +12,28 @@ import { StoreContext } from '../context/StoreProvider';
 export const MainPage = () => {
   const navigate = useNavigate();
   const [store, dispatch] = useContext(StoreContext);
-  const {user,actualHost, cameras, token, users, type} = store;
-    
+  const { user, actualHost, cameras, token, users, type } = store;
+
   const streamButtonRef = useRef(null);
   const viewRef = useRef(null);
   const enrollButtonRef = useRef(null);
-  
-  
-  let baseHost =useMemo(()=> "http://"+ actualHost, [actualHost]);
-  let streamUrl = useMemo(()=> baseHost + ':81', [baseHost] );
-  
+
+  const [cameraIsSelected, setCameraIsSelected] = useState(false);
+
+  const onClickCamera = () => {
+    setCameraIsSelected(true);
+  }
+
+  let baseHost = useMemo(() => "http://" + actualHost, [actualHost]);
+  let streamUrl = useMemo(() => baseHost + ':81', [baseHost]);
+
   useEffect(() => {
-    
-    if(token=="" || user==""){
+
+    if (token == "" || user == "") {
       alert("Debe iniciar sesión")
       navigate('/');
     }
+
   }, []);
 
   const updateConfig = (el) => {
@@ -64,35 +72,58 @@ export const MainPage = () => {
     streamButtonRef.current.innerHTML = 'Parar'
   }
 
-  if(baseHost !== actualHost && viewRef.current != null) stopStream()
- 
+  if (baseHost !== actualHost && viewRef.current != null) stopStream()
+
   return (
     <Box>
-      <SideBar name={user} cameras={cameras} users={users}/>
-      <CamBox>
-        <img height="100%" width="100%" ref={ viewRef } src="" />
-        <Buttons>
-          <Button>Captura</Button>
-          <Button ref={ enrollButtonRef } onClick={()=>updateConfig( enrollButtonRef.current )}>Guardar Rostro</Button>
-          <Button ref={ streamButtonRef } onClick={()=>{
-            const streamEnabled = streamButtonRef.current.innerHTML === 'Parar'
-            if (streamEnabled) {
-              stopStream()
-            } else {
-              startStream()
-            }
-          }}>Iniciar</Button>
-          
-        </Buttons>
-      </CamBox>
-      { type? <ConfigurationBar host={actualHost} enrollButtonRef={ enrollButtonRef }></ConfigurationBar>:<></>}
-      
-      
+      <SideBar name={user} cameras={cameras} users={users} onClickCamera={onClickCamera} />
+      {
+        cameraIsSelected ?
+        (<>
+          <CamBox>
+            <img height="100%" width="100%" ref={viewRef} src="" />
+            <Buttons>
+              <Button>Captura</Button>
+              <Button ref={enrollButtonRef} onClick={() => updateConfig(enrollButtonRef.current)}>Guardar Rostro</Button>
+              <Button ref={streamButtonRef} onClick={() => {
+                const streamEnabled = streamButtonRef.current.innerHTML === 'Parar'
+                if (streamEnabled) {
+                  stopStream()
+                } else {
+                  startStream()
+                }
+              }}>Iniciar</Button>
+
+            </Buttons>
+          </CamBox>
+          {
+            type &&
+            <ConfigurationBar
+              host={actualHost}
+              enrollButtonRef={enrollButtonRef} 
+            /> 
+          }
+        </>)
+        :( <div style={{ display:'flex',flexDirection:'column',alignItems:'center'}}>
+            <AiFillVideoCamera size={80} color='gray'/>
+            <div style={{display:'flex', alignItems:'center'}}>
+              <AiOutlineArrowLeft  size={60} color='gray'/>
+              <h1 style={{marginLeft:'20px', color:'gray'}}>
+                {
+                  type 
+                  ? 'Seleccione una camara o cree una nueva'
+                  : 'Para empezar seleccione una camara'
+                }
+              </h1>
+            </div>
+            
+          </div>)
+      }
     </Box>
   )
 }
 
-const Box= styled.div`
+const Box = styled.div`
   height:100vh;
   display: flex;
   justify-content: center;

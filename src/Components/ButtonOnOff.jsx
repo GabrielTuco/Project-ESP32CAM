@@ -1,22 +1,18 @@
 import React, { useEffect, useState } from 'react'
 
-const ButtonOnOff = ({ host }) => {
+const ButtonOnOff = ({ host, statusColor }) => {
   
-  const [ color, setColor ] = useState("#3d3d3d");
+  // const [ color, setColor ] = useState("#3d3d3d");
 
-  const fetchStatus = () => {
+  // const fetchStatus = () => {
 
-    fetch(`http://${ host }/status`)
-      .then(() => { setColor("#2db355") })
-      .catch(()=>{ setColor("#e62f1f") })
+  //   fetch(`http://${ host }/status`)
+  //     .then(() => { setColor("#2db355") })
+  //     .catch(()=>{ setColor("#e62f1f") })
 
-  }
+  // }
 
-  useEffect(() => {
-    
-    fetchStatus();
-
-  }, [])
+  // useEffect(() => { fetchStatus() }, []);
   
   
 
@@ -42,7 +38,7 @@ const ButtonOnOff = ({ host }) => {
           cy={57.98}
           r={44.55}
           style={{
-            fill: `${color}`,
+            fill: `${statusColor}`,
           }}
         />
       </g>
